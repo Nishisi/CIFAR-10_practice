@@ -1,0 +1,5 @@
+__pycache__
+data_batch_*
+test_batch
+readme.html
+batches.meta
