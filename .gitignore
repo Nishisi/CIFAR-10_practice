@@ -1,5 +1,5 @@
+.DS_Store
 __pycache__
-data_batch_*
-test_batch
-readme.html
-batches.meta
+cifar-10-python.tar.gz
+cifar-10-batches-py
+cifar10.pkl
