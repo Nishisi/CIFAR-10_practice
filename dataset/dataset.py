@@ -33,7 +33,7 @@ def _unzip():
 
     print("Unziping " + file_name + " ...")
     tar = tarfile.open(file_path)
-    tar.extractall()
+    tar.extractall(path=dataset_dir)
     tar.close()
     print("End")
 
@@ -89,7 +89,7 @@ def _change_one_hot_label(X):
         row[X[idx]] = 1
     return T
 
-def load_data(one_hot_label=False):
+def load_data(normalize=True,one_hot_label=False):
     """ Read CIFAR-10 Dataset
 
     Parameters
@@ -108,11 +108,14 @@ def load_data(one_hot_label=False):
     with open(save_file,'rb') as f:
         dataset = pickle.load(f)
 
-    #dataset = _load_data()
-    
+    if normalize:
+        for key in ('train_img','test_img'):
+            dataset[key] = dataset[key].astype(np.float32)
+            dataset[key] /= 255.0
+
     if one_hot_label:
-        y_train = _change_one_hot_label(y_train)
-        y_test = _change_one_hot_label(y_test)
+        dataset['train_label'] = _change_one_hot_label(dataset['train_label'])
+        dataset['test_label'] = _change_one_hot_label(dataset['test_label'])
 
     return (dataset['train_img'],dataset['train_label']),(dataset['test_img'],dataset['test_label'])
 
