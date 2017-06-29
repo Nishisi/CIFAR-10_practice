@@ -63,7 +63,8 @@ def _load_data():
             dataset['train_img'] = data_dic['data']
         else :
             #X_train = np.vstack((X_train,data_dic['data']))
-            dataset['train_data'] = np.vstack((dataset['train_img'],data_dic['data']))
+            dataset['train_img'] = np.vstack((dataset['train_img'],data_dic['data']))
+            #np.vstack((dataset['train_img'],data_dic['data']))
         y_train += data_dic['labels']
 
     test_data_dic = _unpickle(path + "/test_batch")
