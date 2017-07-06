@@ -15,6 +15,7 @@ file_name = 'cifar-10-python.tar.gz'
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 save_file = dataset_dir + "/cifar10.pkl"
 
+
 def _download(file_name):
     file_path = dataset_dir + "/" + file_name
 
@@ -22,11 +23,13 @@ def _download(file_name):
         return
 
     print("Downloading " + file_name + " ...")
-    urllib.request.urlretrieve(url_base + file_name,file_path)
+    urllib.request.urlretrieve(url_base + file_name, file_path)
     print("Done")
+
 
 def download_cifar10():
     _download(file_name)
+
 
 def _unzip():
     file_path = dataset_dir + "/" + file_name
@@ -37,34 +40,38 @@ def _unzip():
     tar.close()
     print("End")
 
+
 def unzip_cifar10():
     _unzip()
 
-#def img_show(img):
+
+# def img_show(img):
 #    img = img.reshape(3,32,32).transpose(1,2,0)
 #    pil_img = Image.fromarray(np.uint8(img))
 #    pil_img.show()
 
+
 def _unpickle(filename):
-    with open(filename,"rb") as fp:
-        data = pickle.load(fp,encoding="latin-1")
+    with open(filename, "rb") as fp:
+        data = pickle.load(fp, encoding="latin-1")
     return data
 
+
 def _load_data():
-    #X_train = None
+    # X_train = None
     dataset = {}
     y_train = []
     path = dataset_dir + "/cifar-10-batches-py"
-    
-    for i in range(1,6):
+
+    for i in range(1, 6):
         data_dic = _unpickle(path + "/data_batch_{}".format(i))
         if i == 1:
-            #X_train = data_dic['data']
+            # X_train = data_dic['data']
             dataset['train_img'] = data_dic['data']
-        else :
-            #X_train = np.vstack((X_train,data_dic['data']))
-            dataset['train_img'] = np.vstack((dataset['train_img'],data_dic['data']))
-            #np.vstack((dataset['train_img'],data_dic['data']))
+        else:
+            # X_train = np.vstack((X_train,data_dic['data']))
+            dataset['train_img'] = np.vstack((dataset['train_img'], data_dic['data']))
+            # np.vstack((dataset['train_img'],data_dic['data']))
         y_train += data_dic['labels']
 
     test_data_dic = _unpickle(path + "/test_batch")
@@ -75,28 +82,33 @@ def _load_data():
 
     return dataset
 
+
 def init_cifar10():
     download_cifar10()
     unzip_cifar10()
     dataset = _load_data()
     print("Creating pickle file ...")
-    with open(save_file,'wb') as f:
-        pickle.dump(dataset,f,-1)
+    with open(save_file, 'wb') as f:
+        pickle.dump(dataset, f, -1)
     print("Done!")
 
+
 def _change_one_hot_label(X):
-    T = np.zeros((X.size,10))
-    for idx,row in enumerate(T):
+    T = np.zeros((X.size, 10))
+    for idx, row in enumerate(T):
         row[X[idx]] = 1
     return T
 
-def load_data(normalize=True,one_hot_label=False):
+
+def load_data(normalize=True, flatten=True, one_hot_label=False):
     """ Read CIFAR-10 Dataset
 
     Parameters
     ----------
+    normalize :
     one_hot_label :
         if one_hot_label is True, this function returns label of ont_hot array.
+    flatten :
 
     Returns
     -------
@@ -106,11 +118,11 @@ def load_data(normalize=True,one_hot_label=False):
     if not os.path.exists(save_file):
         init_cifar10()
 
-    with open(save_file,'rb') as f:
+    with open(save_file, 'rb') as f:
         dataset = pickle.load(f)
 
     if normalize:
-        for key in ('train_img','test_img'):
+        for key in ('train_img', 'test_img'):
             dataset[key] = dataset[key].astype(np.float32)
             dataset[key] /= 255.0
 
@@ -118,7 +130,12 @@ def load_data(normalize=True,one_hot_label=False):
         dataset['train_label'] = _change_one_hot_label(dataset['train_label'])
         dataset['test_label'] = _change_one_hot_label(dataset['test_label'])
 
-    return (dataset['train_img'],dataset['train_label']),(dataset['test_img'],dataset['test_label'])
+    if not flatten:
+        for key in ('train_img', 'test_img'):
+            dataset[key] = dataset[key].reshape(-1, 3, 32, 32)
+
+    return (dataset['train_img'], dataset['train_label']), (dataset['test_img'], dataset['test_label'])
+
 
 if __name__ == '__main__':
     init_cifar10()
